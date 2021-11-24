@@ -26,9 +26,13 @@ div.app hr {
   margin-bottom: 1.5em; 
 }
 
-legend.username {
+span.username {
+  font-size: 2em; 
   font-weight: bold; 
-  font-size: 1.25em; 
+  padding: 0.25em 1em; 
+  border: 1px solid #000; 
+  margin: 1em 1em; 
+  display: block;
 }
 
 
