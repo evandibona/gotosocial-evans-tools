@@ -53,3 +53,13 @@ Api.PasswordChange = function(oldpass, newpass, fx){
     success: fx
   }); 
 }
+
+Api.PostStatus = function(text, vis, fx){
+  $.ajax({
+    url: Api.domain + "/api/v1/statuses",
+    type: "POST", 
+    headers: Api.header,
+    data: { status: text, visibility: vis, format: "markdown" },
+    success: fx
+  }); 
+}

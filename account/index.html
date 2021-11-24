@@ -76,6 +76,70 @@
 
     <div class="pure-g">
       <div class="pure-u-1">
+        <h2> Markdown Poster </h2>
+        <p> 
+          The existing clients: Tusky & Pinafore 
+          are great, but there are a few backend
+          features which they don't expose. 
+        </p>
+        <p>
+          The one that may be most annoying is 
+          enabling markdown. It's a simple switch
+          in the API, but I don't believe it is 
+          a standard Mastodon feature. So here's
+          a simple utility for that. 
+        </p>
+        <!-- 
+          Status itself, media ids, reply user, 
+          sensitive?, spoiler?, visibility, scheduled at, 
+          language, format -->
+        <div class="pure-form center">
+          <textarea type="text" 
+            class="pure-input-1 compose-box" 
+            style=""
+            placeholder="You markdown post..."
+          ></textarea>
+          <button class="pure-button post-status" style="width:21em">
+            Make Post
+          </button> 
+        </div>
+      </div>
+    </div>
+    <div class="pure-g">
+      <div class="pure-u-1">
+        <pre>
+# Quick Markdown Cheat Sheet
+
+[<a href="https://www.markdownguide.org/cheat-sheet">This is a link</a>](https://www.markdownguide.org/cheat-sheet)
+to a better Markdown cheat sheet. 
+
+
+# Main Title
+## Subtitle
+### Section
+
+Number Signs are used for titles. 
+Paragraphs are normal text separated by a blank line. 
+
+In this new paragraph I'll mention that you can also 
+make lists. 
+
+* Bullets
+* Have 
+* Their uses. 
+
+1. As do
+2. Numbered
+3. Lists
+
+**Emphasis** can be provided with **bold** text or
+with *italicized* text. 
+
+Feel free to copy and past this into the poster to
+see how it looks on your particular app. 
+It's easy to delete posts after the fact. 
+
+        </pre>
       </div>
     </div>
 
@@ -134,6 +198,17 @@ $('button.change-pwd').click(function(){
   function(data){
     console.log(data)
   })
+}); 
+
+$('button.post-status').click(function(){
+  Api.PostStatus(
+    $('textarea.compose-box').val(), 
+    "public", 
+    function(data){
+      console.log(data)
+      $('textarea.compose-box').val("")
+      alert("Your post was created at: " + data.created_at)
+    })
 }); 
 
 </script>

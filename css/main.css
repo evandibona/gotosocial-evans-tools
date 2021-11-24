@@ -35,6 +35,11 @@ span.username {
   display: block;
 }
 
+textarea {
+  margin-bottom: 2em; 
+  height:320px;
+  resize:vertical;
+}
 
 
 @media only screen and (min-width: 720px) {
