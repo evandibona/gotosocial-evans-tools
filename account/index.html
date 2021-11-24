@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" 
+    href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
+    integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5"
+    crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/account/css/main.css">
+  <script src="/assets/js/jquery-3.6.0.js"></script>
+</head>
+<body>
+  <div class="main app">
+    <h2> Hacky little page for now </h2>
+    <ol>
+      <li> Init Client first, won't need to do it every time. 
+      <li> Click Login, and you should be redirected to a login page. 
+      <li> After logging in and accepting the prompt you will be sent 
+           back to this page. 
+      <li> Click 'Generate Token' 
+           (it should be able to grab the temporary code from the url)
+      <li> If successful you'll see a popup and it should reload the page. 
+      <li> Your username should appear above the password form. 
+    </ol>
+    <div class="pure-g">
+      <div class="pure-u-1 center">
+        <h3> Initialize & Login </h3> 
+        <div>
+          <button class="pure-button initc"> Init Client    </button>
+          <button class="pure-button initu"> Login          </button>
+          <button class="pure-button token"> Generate Token </button>
+        </div>
+        <p class='uinfo'> </p>
+        <p id="tokenstat"></p>
+      </div>
+      <div class="pure-u-1 center">
+        <button class="pure-button reload"
+        style="width:12em" > Reload </button>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="pure-g">
+      <div class="pure-u-1">
+        <h3> Change Password </h3> 
+        <form class="pure-form pure-form-stacked">
+          <fieldset>
+            <legend class="username"></legend>
+            <label for="opwd">Old Password</label>
+            <input type="password" id="opwd">
+            <label for="npwd">New Password</label>
+            <input type="password" id="npwd">
+          </fieldset>
+          <button type="reset" class="pure-button change-pwd">
+            Change Password
+          </button>
+          <p id="passchange"></p>
+        </form>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="pure-g">
+      <div class="pure-u-1 debug center">
+        <h2> Debugging/Status Info </h2>
+        <dl>
+          <dt> Client ID </dt>
+          <dd id="id"></dd>
+          <dt> Client Secret </dt>
+          <dd id="st"></dd>
+          <dt> Token </dt>
+          <dd id="tk"></dd>
+          <dt> </dt>
+          <dt> </dt>
+        </dl>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="pure-g">
+      <div class="pure-u-1">
+        <h2> Follow User </h2>
+        <p>
+          This is specifically for users from another instance.
+        </p>
+        <form class="pure-form">
+          <input id="search-account">
+          <button type="reset" class="pure-button search">
+            Search
+          </button>
+          <p> Local ID of first result:  <b id="userid"></b> </p>
+        </form>
+        <h2> Follow Test </h2>
+        <form class="pure-form">
+          <input id="fuid" placeholder="local id foreign user">
+          <button type="reset" class="pure-button follow">
+            Follow
+          </button>
+          <button type="reset" class="pure-button get-outbox">
+            Get Outbox
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="pure-g">
+      <div class="pure-u-1-2">
+      </div>
+      <div class="pure-u-1-2">
+      </div>
+    </div>
+
+  </div>
+</body>
+<script>
+
+var mainUrl = 'https://piedmontnons.top/assets/account/'
+var domain  = "https://piedmontnons.top"
+var rootUrl = domain + "/assets/account/"
+
+var head = {}
+
+$(document).ready(function(){
+  $('div.debug #id').text(localStorage.getItem('id')); 
+  $('div.debug #st').text(localStorage.getItem('st')); 
+  $("div.debug #tk").text(localStorage.getItem("tk"));
+
+  head = { "Authorization": 
+    "Bearer " + localStorage.getItem('tk')}
+
+  $.ajax({
+    url: domain + "/api/v1/accounts/verify_credentials", 
+    type: "GET", 
+    headers: head,  
+    success: function(data) {
+      console.log(data)
+      $('legend.username').text(data.username) 
+    },
+  })
+}); 
+
+$('button.initc').click(function(){
+  $.post(domain + '/api/v1/apps', 
+  { client_name: "AccountPortal", redirect_uris: "URN:Ietf:wg:oauth:2.0:oob" },
+  function(data, status){
+    localStorage.setItem('id', data.client_id)
+    localStorage.setItem('st', data.client_secret)
+    $('div.debug #id').text(localStorage.getItem('id')); 
+    $('div.debug #st').text(localStorage.getItem('st')); 
+  }); 
+});
+
+$('button.initu').click(function(){
+  var loginUrl = 
+    domain + '/oauth/authorize' +
+    '?client_id=' + localStorage.getItem('id') +
+    '&scope=read+write' +
+    '&redirect_uri=' + rootUrl +
+    '&response_type=code'
+  var win = window.open(loginUrl, '_self')
+});
+
+$('button.token').click(function(){
+
+  var code = location.href.split("?code=")[1]
+  alert(code)
+
+  $.post(domain + "/oauth/token", 
+  {
+    client_id: localStorage.getItem('id'),
+    client_secret: localStorage.getItem('st'),
+    redirect_uri: rootUrl,
+    grant_type: 'authorization_code', 
+    code: code, 
+    scope: 'read write'
+  }, function(data, stat){
+    alert(stat)
+    console.log(data)
+    localStorage.setItem('tk', data.access_token)
+    $('div.debug #tk').text(localStorage.getItem('tk'))
+    location.href = rootUrl;
+  })
+}); 
+
+$('button.reload').click(function(){
+  location.href = rootUrl;
+})
+
+$('div.account-info button').click(function(){
+  var user = $('#username').val()
+  $.get(domain + "/api/v1/accounts/"+user, 
+  function(data){
+    $('p.account-info').text(data)
+  })
+});
+
+$('button.change-pwd').click(function(){
+  //  'accept': 'application/json',
+  //  'Content-Type': 'application/json'}
+  var pasO = $('#opwd').val()
+  var pasN = $('#npwd').val()
+  $.ajax({
+    url: domain + "/api/v1/user/password_change",
+    type: "POST", 
+    headers: head, 
+    data: { old_password: pasO, new_password: pasN },
+    success: function(data, status) {
+      $('#passchange').text(status)
+    }, 
+  }); 
+}); 
+
+$('button.search').click(function(){
+  var act = $("#search-account").val().trim()
+  var sUrl = 
+    domain + "/api/v1/search" +
+      "?account_id=" + act.split("@")[1] +
+      "&type=accounts" + "&exclude_unreviewed=false" +
+      "&q=" + encodeURIComponent(act) +
+      "&resolve=true" + "&limit=20" +
+      "&offset=0" + "&following=false"
+  $.ajax({
+    url: sUrl, 
+    type: "GET", 
+    headers: head,
+    success: function(data, status){
+      console.log(data,status)
+      $("#userid").text(data.accounts[0].id)
+    }, 
+  });
+}); 
+
+//////// Follow must be condensed. Get entire structure //////
+////////  via search, then construct the follow packet. //////
+
+$('button.follow').click(function(){
+  var fuid = $("#fuid").val()
+  $.ajax({
+    url: domain + "/api/v1/accounts/" + fuid + "/follow" +
+      "?reblogs=true" + "&notify=false",
+    type: "POST", 
+    headers: head, 
+    success: function(data, status){
+      console.log(data,status)
+    },
+  });
+  
+
+  // Follow!
+
+  $.ajax({
+    url: domain + "/api/v1/01M184ZWEKXH2MNEK6MQWNW4A4/statuses",
+    type: "GET", 
+    headers: head,
+    success: function(data, status){
+      console.log( data )
+    }, 
+  }); 
+}); 
+
+
+</script>
+</html>

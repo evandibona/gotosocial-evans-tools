@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" 
+    href="https://unpkg.com/purecss@2.0.6/build/pure-min.css"
+    integrity="sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5"
+    crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/assets/account/css/main.css">
+  <script src="/assets/account/js/jquery-3.6.0.js"></script>
+</head>
+<body>
+  <div class="main app">
+    <h2> Just Some Notes </h2>
+    <p>
+      So overall the "Fediverse" is a cesspool of the worst
+      of leftism, socialism, LGBT agendas, etc. 
+      There may be some parts of it worth interacting with though.
+      Especially as cryptocurrency, tech freedom, and local
+      economies, are all potential common ground. 
+    </p>
+    <p>
+      For now though, I'm just starting to figure out how to
+      create connections between our server and others, it
+      may be best to keep things quiet here. 
+      We'll see though. 
+    </p>
+    <h2> Users To Consider Following </h2>
+    <p>
+      Liberdon.com
+      bitcoinhackers.org
+      social.freetalklive.com
+      noagendasocial.com 
+    </p>
+    <ul>
+      <li> @joshua@liberdon.com 
+      <li> @alexc@social.coop 
+      <li> @ChYJtNvw@mastodon.social 
+      <li> @insanityisfree@mastodon.social 
+      <li> @mdc3940@bitcoinhackers.org
+      <li> @cyprianous@twtr.plus
+      <li> @pete@petertodd.org 
+      <li> @FTL_Ian@social.freetalklive.com
+      <li> @Humpleupagus@noagendasocial.com 
+      <li> @furgar@noagendasocial.com 
+      <li> @drgo@bitcoinhackers.org 
+      <li> @Beef@social.freetalklive.com 
+      <li> @Chowder007@noagendasocial.com 
+      <li> @ChristianAnarchist@liberdon.com 
+      <li> @ohellno@sayit.world 
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+      <li>
+    </ul>
+    <h2> Gotta Figure Out Gab's AI </h2>
+    <p>
+      So far my requests to their domain has yielded nothing. 
+      And with external apps blocking them, it's hard to get
+      any proper examples of what API they use and 
+      if it's truly compatible. 
+    </p>
+    <p>
+      Looking into it more, seems as if they keep their
+      system on lockdown for 'security' reasons. 
+    </p>
+
+
+  </div>
+</body>
+<script>
+
+var mainUrl = 'https://piedmontnons.top/assets/account/'
+
+var head = {}
+
+$(document).ready(function(){
+  $('div.debug #id').text(localStorage.getItem('id')); 
+  $('div.debug #st').text(localStorage.getItem('st')); 
+  $('div.debug #cd').text(localStorage.getItem('cd'));
+  $("div.debug #tk").text(localStorage.getItem("tk"));
+
+  head = { "Authorization": 
+    "Bearer " + localStorage.getItem('tk')}
+
+  var urlc = location.href.split("?code=")
+  if (urlc.length > 1) {
+    $('input#code').val( urlc[1] )
+  }
+  $.ajax({
+    url: "https://piedmontnons.top/api/v1/accounts/verify_credentials", 
+    type: "GET", 
+    headers: head,  
+    success: function(data) {
+      console.log(data)
+      $('legend.username').text(data.username) 
+    },
+  })
+}); 
+
+$('button.initc').click(function(){
+  $.post('https://piedmontnons.top/api/v1/apps', 
+  { client_name: "AccountPortal", redirect_uris: "URN:Ietf:wg:oauth:2.0:oob" },
+  function(data, status){
+    localStorage.setItem('id', data.client_id)
+    localStorage.setItem('st', data.client_secret)
+    $('div.debug #id').text(localStorage.getItem('id')); 
+    $('div.debug #st').text(localStorage.getItem('st')); 
+  }); 
+});
+
+$('button.initu').click(function(){
+  var loginUrl = 
+    'https://piedmontnons.top/oauth/authorize' +
+    '?client_id=' + localStorage.getItem('id') +
+    '&scope=read+write' +
+    '&redirect_uri=' + mainUrl +
+    '&response_type=code'
+  var win = window.open(loginUrl, '_self')
+});
+
+$('button.token').click(function(){
+  console.log("Let's get that token!")
+  $.post("https://piedmontnons.top/oauth/token", 
+  {
+    client_id: localStorage.getItem('id'),
+    client_secret: localStorage.getItem('st'),
+    redirect_uri: mainUrl,
+    grant_type: 'authorization_code', 
+    code: localStorage.getItem('cd'), 
+    scope: 'read write'
+  }, function(data, stat){
+    localStorage.setItem('tk', data.access_token)
+    $('div.debug #tk').text(localStorage.getItem('tk'))
+    $('#tokenstat').text(stat)
+  })
+}); 
+
+$('button.save-code').click(function(){
+  localStorage.setItem('cd',$('input#code').val()); 
+  $('div.debug #cd').text(localStorage.getItem('cd')); 
+  location.href = mainUrl;
+}); 
+
+
+$('div.account-info button').click(function(){
+  var user = $('#username').val()
+  $.get("https://piedmontnons.top/api/v1/accounts/"+user, 
+  function(data){
+    $('p.account-info').text(data)
+  })
+});
+
+$('button.change-pwd').click(function(){
+  //  'accept': 'application/json',
+  //  'Content-Type': 'application/json'}
+  var pasO = $('#opwd').val()
+  var pasN = $('#npwd').val()
+  $.ajax({
+    url: "https://piedmontnons.top/api/v1/user/password_change",
+    type: "POST", 
+    headers: head, 
+    data: { old_password: pasO, new_password: pasN },
+    success: function(data, status) {
+      $('#passchange').text(status)
+    }, 
+  }); 
+}); 
+
+$('button.get-outbox').click(function(){
+  var oUrl = $('#outbox-url').val()
+  $.ajax({
+    url: oUrl, 
+    type: "GET", 
+    headers: head, 
+  });
+}); 
+
+$('button.search').click(function(){
+  var act = $('#search-account').val()
+  var sUrl = 
+    "https://piedmontnons.top/api/v1/search" +
+      "?account_id=" + act.split("@")[1] +
+      "&type=accounts" + "&exclude_unreviewed=false" +
+      "&q=" + encodeURIComponent(act) +
+      "&resolve=true" + "&limit=20" +
+      "&offset=0" + "&following=false"
+  $.ajax({
+    url: sUrl, 
+    type: "GET", 
+    headers: head,
+    success: function(data, status) {
+      console.log(data, status)
+    }, 
+  });
+}); 
+
+</script>
+</html>

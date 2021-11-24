@@ -1,0 +1,40 @@
+body {
+	background: #FCF9EB; 
+  padding: 1em 2em 1em 2em; 
+  margin: 0 auto; 
+  text-align: justify; 
+}
+
+.center {
+  text-align: center; 
+}
+
+div.footer {
+  margin-top: 10em; 
+}
+
+div.main {
+}
+
+div.app {
+  padding: 2em; 
+  border: black dashed 1px; 
+}
+div.app hr {
+  border: #bbb dashed 1px; 
+  margin-top: 1.5em; 
+  margin-bottom: 1.5em; 
+}
+
+legend.username {
+  font-weight: bold; 
+  font-size: 1.25em; 
+}
+
+
+
+@media only screen and (min-width: 720px) {
+  body {
+    max-width: 720px; 
+  }
+}
